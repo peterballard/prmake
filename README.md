@@ -3,8 +3,8 @@ Preprocessor to build more powerful makefiles
 
 Free to reuse and modify under the terms of the GPL.
 
-Intstallation
--------------
+Installation
+------------
 prmake has a single source: prmake.py
 To use, download, put it in a directory of your choice (let's call it MYDIR).
 You can then call it with "python MYDIR/prmake.py"
