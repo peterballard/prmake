@@ -1,7 +1,9 @@
 # prmake
 Preprocessor to build more powerful makefiles
 
-Free to reuse and modify under the terms of the GPL.
+(c) Peter Ballard, 2019
+
+Free to reuse and modify under the terms of the GPLv3 (see "License" below).
 
 Installation
 ------------
