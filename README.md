@@ -35,7 +35,7 @@ with its standard output piped to the post-processed Makefile.
 Everything else in the Makefile is piped unchanged to the post-processed Makefile.
 
 So if you have 100 very similar targets, and "make" wildcards are not suitable,
-you can generate them using a Python (or any other interpreted language) loop.
+prmake will generate them using a Python (or any other interpreted language) loop.
 
 Assuming you have set up the alias described above, you then run "prmake" just as you would "make", e.g.
 
