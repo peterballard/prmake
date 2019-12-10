@@ -6,13 +6,12 @@ Free to reuse and modify under the terms of the GPL.
 Installation
 ------------
 prmake has a single source: prmake.py
-To use, download, put it in a directory of your choice (let's call it MYDIR).
+
+To use: download it, and put it in a directory of your choice (let's call it MYDIR).
 You can then call it with "python MYDIR/prmake.py"
 but I like to alias this to the command prmake, i.e. add this line to .bashrc:
 
-alias prmake='python MYDIR/prmake.py'
-
-You can then invoke "prmake" just as you would normally run "make".
+    alias prmake='python MYDIR/prmake.py'
 
 Usage
 -----
@@ -36,7 +35,7 @@ Everything else in the Makefile is piped unchanged to the post-processed Makefil
 So if you have 100 very similar targets, and "make" wildcards are not suitable,
 you can generate them using a Python (or any other interpreted language) loop.
 
-Then you run "prmake" just as you would "make", e.g.
+Assuming you have set up the alias described above, you then run "prmake" just as you would "make", e.g.
 
     prmake myfile.txt
 
