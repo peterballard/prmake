@@ -20,11 +20,9 @@ In prmake, a Makefile has two additional commands:
 
     #begincode <commands>
 
-and
+(where <commands> is usually a program or executable, e.g. "python"); and
 
     #endcode
-
-<commands> need not be a single word, but usually it is, e.g. "python".
 
 The text between the #begincode and #endcode lines is put in a temporary file,
 and then the command
