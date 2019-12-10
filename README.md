@@ -17,15 +17,20 @@ You can then invoke "prmake" just as you would normally run "make".
 Usage
 -----
 In prmake, a Makefile has two additional commands:
-  #begincode <commands>
-and
-  #endcode
 
-<commands> need not be a single word, but usually it is, e.g. "python".
+    #begincode <commands>
+
+and
+
+    #endcode
+
+    <commands> need not be a single word, but usually it is, e.g. "python".
 
 The text between the #begincode and #endcode lines is put in a temporary file,
 and then the command
-        <commands> <temporary_file>
+
+     <commands> <temporary_file>
+
 is run as a Python subprocess,
 with its standard output piped to the post-processed Makefile.
 Everything else in the Makefile is piped unchanged to the post-processed Makefile.
