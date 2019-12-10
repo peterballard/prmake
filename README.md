@@ -20,7 +20,7 @@ In prmake, a Makefile has two additional commands:
 
     #begincode <commands>
 
-(where <commands> is usually a program or executable, e.g. "python"); and
+(where &lt;commands&gt; is usually a program or executable, e.g. "python"); and
 
     #endcode
 
