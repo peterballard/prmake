@@ -24,7 +24,7 @@ and
 
     #endcode
 
-    <commands> need not be a single word, but usually it is, e.g. "python".
+<commands> need not be a single word, but usually it is, e.g. "python".
 
 The text between the #begincode and #endcode lines is put in a temporary file,
 and then the command
@@ -40,7 +40,7 @@ you simply generate them using a Python loop.
 
 Then you run "prmake" just as you would "make", e.g.
 
-$ prmake myfile.txt
+    prmake myfile.txt
 
 License
 -------
