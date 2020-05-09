@@ -29,21 +29,18 @@ with its standard output piped to the post-processed Makefile.
 Everything else in the prfile is piped unchanged to the post-processed Makefile.
 
 Usage: prmake [options]    or    python prmake.py [options]
-   The following options are processed by prmake:
-     -f <Makefile>         specifies the Makefile
-     --file=<Makefile>     specifies the Makefile
-     --makefile=<Makefile> specifies the Makefile
-     -h displays this message
-     --make=<NAME> specifies the "make" executable, default is "make"
-     --prfile=<PRFILE> specifies prfile name. Default is "Makefile.pr". Overrides --prext.
-     --prext=<PREXT> specifies extension of prfiles. Default is ".pr"
-        i.e. Makefile usually called "Makefile", so prfile usually called "Makefile.pr"
-     --prforce=1 forces the rebuild of the post-processed Makefile (normally only remade if out of date)
-     --prkeep=1 means temporary files are kept (and their locations printed)
-   All other command line arguments are passed to "make".
-
-If no prfile is specified, prmake searches for the following files as
- the prfile, in order: "GNUmakefile.pr", "makefile.pr", "Makefile.pr".
+    The following options are processed by prmake:
+    -f <Makefile>         specifies the Makefile
+    --file=<Makefile>     specifies the Makefile
+    --makefile=<Makefile> specifies the Makefile
+    -h displays this message
+    --make=<NAME> specifies the "make" executable, default is "make"
+    --prfile=<PRFILE> specifies prfile name. Overrides --prext. Defaults in order: "GNUmakefile.pr", "makefile.pr", "Makefile.pr".
+    --prext=<PREXT> specifies extension of prfiles. Default is ".pr"
+    i.e. Makefile usually called "Makefile", so prfile usually called "Makefile.pr"
+    --prforce=1 forces the rebuild of the post-processed Makefile (normally only remade if out of date)
+    --prkeep=1 means temporary files are kept (and their locations printed)
+    All other command line arguments are passed to "make".
 """)
     sys.exit(1)
 ################################################################################ <-- 1 columns
