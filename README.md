@@ -21,8 +21,8 @@ but I like to alias this to the command prmake, i.e. add this line to .bashrc:
 
     alias prmake='python MYDIR/prmake.py'
 
-Usage
------
+Overview
+--------
 "make" ( https://www.gnu.org/software/make/ ) is a great tool, but it is hard to make complicated rules.
 prmake makes it easier to write complicated makefile rules,
 without requiring any change to the simple makefile rules.
@@ -35,6 +35,10 @@ then invokes "make" on that post-processed Makefile.
 So e.g. if you have 100 very similar targets, and "make" wildcards are not suitable,
 prmake will generate them using a loop in Python (or any other interpreted language).
 
+Assuming you have set up the alias described above, you then run "prmake" just as you would "make", e.g.
+
+    prmake myfile.dat
+
 prmake is designed to be novice friendly:
 - Any makefile can be a prfile.
   So start with an existing makefile as your prfile, and add as much or as little specialised code as you want.
@@ -44,6 +48,8 @@ prmake is designed to be novice friendly:
 - prmake only overwrites a makefile which has been created by prmake,
   so this safeguards against it blowing away source code.
 
+Usage
+-----
 In prmake, a prfile has two additional commands:
 
     #begincode <commands>
@@ -69,19 +75,12 @@ Everything else in the prfile is piped unchanged to the makefile.
     --makefile=<Makefile> specifies the makefile
     -h displays this message
     --make=<NAME> specifies the "make" executable, default is "make"
-    --prfile=<PRFILE> specifies prfile name. Default is "Makefile.pr". Overrides --prext.
+    --prfile=<PRFILE> specifies prfile name. Overrides --prext. Defaults in order: "GNUmakefile.pr", "makefile.pr", "Makefile.pr".
     --prext=<PREXT> specifies extension of prfiles. Default is ".pr"
-    .e. makefile usually called "Makefile", prfile usually called "Makefile.pr"
+    i.e. makefile usually called "Makefile", prfile usually called "Makefile.pr"
     -prforce=1 forces the rebuild of the post-processed Makefile (normally only remade if out of date)
     --prkeep=1 means temporary files are kept (and their locations printed)
     All other command line arguments are passed to "make".
-
-If no prfile is specified, prmake searches for the following files as
- the prfile, in order: "GNUmakefile.pr", "makefile.pr", "Makefile.pr".
-
-Assuming you have set up the alias described above, you then run "prmake" just as you would "make", e.g.
-
-    prmake myfile.dat
 
 License
 -------
