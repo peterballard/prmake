@@ -21,13 +21,13 @@ but I like to alias this to the command prmake, i.e. add this line to .bashrc:
 
     alias prmake='python MYDIR/prmake.py'
 
-Overview
---------
+Description
+-----------
 "make" ( https://www.gnu.org/software/make/ ) is a great tool, but it is hard to make complicated rules.
 prmake makes it easier to write complicated makefile rules,
 without requiring any change to the simple makefile rules.
 
-prmake processes a prfile (usually called "Makefile.pr")
+prmake processes a prfile (usually called `Makefile.pr`)
 in a high level language (such as Python),
 then creates a post-processed Makefile (usually called "Makefile"),
 then invokes "make" on that post-processed Makefile.
