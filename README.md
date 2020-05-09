@@ -68,7 +68,7 @@ is run as a Python subprocess,
 with its standard output piped to the makefile.
 Everything else in the prfile is piped unchanged to the makefile.
 
-Usage: prmake [options]    or    python prmake.py [options]
+    Usage: prmake [options]    or    python prmake.py [options]
     The following options are processed by prmake:
     -f <Makefile>         specifies the makefile
     --file=<Makefile>     specifies the makefile
