@@ -62,19 +62,19 @@ is run as a Python subprocess,
 with its standard output piped to the makefile.
 Everything else in the prfile is piped unchanged to the makefile.
 
-Usage: prmake [options]    or    python prmake.py [options]
-   The following options are processed by prmake:
-     -f <Makefile>         specifies the makefile
-     --file=<Makefile>     specifies the makefile
-     --makefile=<Makefile> specifies the makefile
-     -h displays this message
-     --make=<NAME> specifies the "make" executable, default is "make"
-     --prfile=<PRFILE> specifies prfile name. Default is "Makefile.pr". Overrides --prext.
-     --prext=<PREXT> specifies extension of prfiles. Default is ".pr"
-        i.e. makefile usually called "Makefile", prfile usually called "Makefile.pr"
-     --prforce=1 forces the rebuild of the post-processed Makefile (normally only remade if out of date)
-     --prkeep=1 means temporary files are kept (and their locations printed)
-   All other command line arguments are passed to "make".
+    Usage: prmake [options]    or    python prmake.py [options]
+    The following options are processed by prmake:
+    -f <Makefile>         specifies the makefile
+    --file=<Makefile>     specifies the makefile
+    --makefile=<Makefile> specifies the makefile
+    -h displays this message
+    --make=<NAME> specifies the "make" executable, default is "make"
+    --prfile=<PRFILE> specifies prfile name. Default is "Makefile.pr". Overrides --prext.
+    --prext=<PREXT> specifies extension of prfiles. Default is ".pr"
+    .e. makefile usually called "Makefile", prfile usually called "Makefile.pr"
+    -prforce=1 forces the rebuild of the post-processed Makefile (normally only remade if out of date)
+    --prkeep=1 means temporary files are kept (and their locations printed)
+    All other command line arguments are passed to "make".
 
 If no prfile is specified, prmake searches for the following files as
  the prfile, in order: "GNUmakefile.pr", "makefile.pr", "Makefile.pr".
