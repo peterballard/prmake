@@ -58,8 +58,8 @@ and
 
     #endcode
 
-<commands> need not be a single word, but usually it is, e.g. `python`.
-The text between the #begincode and #endcode lines is put in a temporary file,
+`<commands>` need not be a single word, but usually it is, e.g. `python`.
+The text between the `#begincode` and `#endcode` lines is put in a temporary file,
 and then the command
 
     <commands> <temporary_file>
