@@ -48,13 +48,28 @@ Usage: prmake [options]    or    python prmake.py [options]
 # prfile is the original Makefile.pr
 # makefile is the post-processed Makefile
 def make_Makefile(prfile, makefile, prforce, prkeep):
-    if not os.path.exists(prfile):
-        sys.stdout.write("No %s, exiting\n" % prfile)
+    if not os.path.exists(prfile) and not os.path.exists(makefile):
+        sys.stdout.write("Neither %s nor %s exists, exiting.\n" % (prfile, makefile))
         sys.exit(1)
+        
+    if not os.path.exists(prfile):
+        sys.stdout.write("No %s, so not rebuilding %s\n" % (prfile, makefile))
+        return
+    
     if not prforce and os.path.exists(makefile) and os.path.getmtime(prfile) < os.path.getmtime(makefile):
         # makefile exists and is up to date, and we are not forcing a rebuild using prmake, so do nothing
-        #sys.stdout.write("not building: %s is up to date\n" % makefile)
+        sys.stdout.write("%s is up to date\n" % makefile)
         return
+
+    # if makefile exists, check it is not a source
+    if os.path.exists(makefile):
+        ip = open(makefile, "r")
+        line = ip.readline()
+        ip.close()
+        if line.find("# created automatically by prmake") != 0:
+            sys.stdout.write("Stopping because %s already exists and is not output from prmake. Rename or delete %s, or use make instead of prmake.\n" % (makefile, makefile))
+            sys.exit(1)
+
     sys.stdout.write("Building: %s\n" % makefile)
     # write to makefile with "fail" postpended, only rename to makefile if all is successful
     if os.path.exists(makefile):
@@ -187,54 +202,11 @@ def main():
             makeargs.append(arg)
         j += 1
 
-    #### 1. If makefiles specified, create appropriate prfile names if necessary, and do some checks
-    if len(makefiles)>0:
-        if len(prfiles)==0:
-            for makefile in makefiles:
-                prfile = makefile + prext
-                prfiles.append(prfile)
+    ################
+    # different actions depending on makefiles and prfiles
 
-        if len(makefiles) != len(prfiles):
-            # this can happen if both makefiles and prfiles are specified from command line
-            sys.stdout.write("Error: specified %d makefiles but %d prfiles\n" % (len(makefiles), len(prfiles)))
-            usage()
-
-        for j in range(len(makefiles)):
-            prfile = prfiles[j]
-            makefile = makefiles[j]
-            if os.path.exists(prfile):
-                # all good!
-                pass
-            elif not os.path.exists(prfile) and os.path.exists(makefile):
-                sys.stdout.write('%s does not exist, invoking ordinary make on %s instead...\n' % (prfile, makefile))
-                prfiles[j] = ""
-                # This will now drop down the 'if prfile==""' option of step 5
-                # and run ordinary make 
-            else:
-                sys.stdout.write('Error: neither prfile "%s" nor makefile "%s" exist\n', (prfile, makefile))
-                usage()
-
-    #### 2. If prfile specified but not makefile, create corresponding makefile name
-    if len(makefiles)==0 and len(prfiles)>0:
-        k = len(prext)
-        for prfile in prfiles:
-            # just do the substitution, we check for the existence of prfile in stage 5
-            if prfile[-k:]==prext:
-                makefile = prfile[:-k]
-                makefiles.append(makefile)
-            else:
-                sys.stdout.write('Error: cannot create makefile name because prfile "%s" does not end in string prext="%s"\n', prfile, prext)
-                usage()
-
-    #### 3. Search for a prfile if none has been specified. (This is the usual case)
-    #        GNU make searches for "GNUmakefile", "makefile", "Makefile" in order.
-    #        For prmake, we add prext to each of these,
-    #         searching for "GNUmakefile", "makefile", "Makefile" in order.
-    #        We recommend "Makefile.pr", because it is more likely to be found later on by someone looking for "Makefile"
     if len(makefiles)==0 and len(prfiles)==0:
-        # do not use os.file.exists() because Mac OS is case independent on file names,
-        #  meaning os.file.exists("makefile") will be true if only "Makefile" exists,
-        #  causing prfile to be called "makefile.pr" instead of "Makefile.pr"
+        # probably the most common case. Find a default prfile and work from there
         dir = os.listdir(".") 
         for makefile in ["GNUmakefile", "makefile", "Makefile"]:
             prfile = makefile + prext
@@ -249,47 +221,43 @@ def main():
             status = subprocess.call(cmd, shell=True)
             sys.exit(status)
 
-    #### 4.  we have done this check before, but just to be sure...
-    if len(makefiles) != len(prfiles):
-        # this can happen if both makefiles and prfiles are specified from command line
-        sys.stdout.write("Error: specified %d makefiles but %d prfiles\n" % (len(makefiles), len(prfiles)))
-        usage()
+    elif len(makefiles)>0 and len(prfiles)==0:
+        # find the prfile(s) to match the makefile(s)
+        for makefile in makefiles:
+            prfile = makefile + prext
+            prfiles.append(prfile)
 
-    #### 5. We now have lists prfiles and makefiles, of equal length
-    # now we (a) run ordinary make of prfile has been set to ""
-    #        (b) otherwise check prfile exists, and
-    #        (c) check the makefiles are safe to overwrite, and (re)create them
+    elif len(makefiles)==0 and len(prfiles)>0:
+        # find the makefile(s) to match the prfile(s)
+        k = len(prext)
+        for prfile in prfiles:
+            # just do the substitution, we check for the existence of makefile later
+            if prfile[-k:]==prext:
+                makefile = prfile[:-k]
+                makefiles.append(makefile)
+            else:
+                sys.stdout.write('Error: cannot create makefile name because prfile "%s" does not end in string prext="%s"\n', prfile, prext)
+                usage()
+
+    else: # len(makefiles)>0 and len(prfiles)>0:
+        if len(makefiles) != len(prfiles):
+            # this can happen if both makefiles and prfiles are specified from command line
+            sys.stdout.write("Error: specified %d makefiles but %d prfiles\n" % (len(makefiles), len(prfiles)))
+            usage()
+
+    ###########
+    # Now we have makefiles and prfiles of equal (nonzero) length
+    # but no idea whether all specified files exist
+
     for j in range(len(prfiles)):
         prfile = prfiles[j]
         makefile = makefiles[j]
-        if prfile=="":
-            if os.path.exists(makefile):
-                # do nothing, we use the existing makefile
-                # There has already been a message about this, written during stage 1
-                pass
-            else:
-                # This should not happen, because prfile="" only done when makefile exists in step 1 
-                raise Exception('something went wrong: empty prfile, and makefile "%s" does not exist' % makefile)
-        else:
-            if not os.path.exists(prfile):
-                sys.stdout.write('prfile "%s" does not exist\n' % prfile)
-                usage()
-            if os.path.exists(makefile):
-                ip = open(makefile, "r")
-                line = ip.readline()
-                ip.close()
-                if line.find("# created automatically by prmake") != 0:
-                    sys.stdout.write("Stopping because %s already exists and is not output from prmake. Rename or delete %s, or use make instead of prmake.\n" % (makefile, makefile))
-                    sys.exit(1)
-            # This command write (or re-writes) makefile
-            make_Makefile(prfile, makefile, prforce, prkeep)
+        # This command writes (or re-writes) makefile
+        # but also checks existence of prfile, whether makefile is up-to-date, and whether makefile is a source
+        make_Makefile(prfile, makefile, prforce, prkeep)
 
-    ##### 6. One more check
-    if len(makefiles)==0:
-        # We should never get to this point, but just in case...
-        raise Exception("something has gone wrong: no makefiles to run")
-
-    #### 7. Build the command line in order to run "make", using the generated makefile (usually called "Makefile") as the Makefile.
+    ###########
+    #### Build the command line in order to run "make", using the generated makefile (usually called "Makefile") as the Makefile.
     #  (and GNU make can support multiple Makefiles, hence the little loop)
     cmd = make
     for makefile in makefiles:
@@ -297,10 +265,10 @@ def main():
     cmd = cmd + " " + " ".join(makeargs)
     sys.stdout.write("Running: " + cmd + "\n")
 
-    #### 8. run that command line. This is the line which actually invokes "make"
+    #### run that command line. This is the line which actually invokes "make"
     status = subprocess.call(cmd, shell=True)
 
-    #### 9. last of all, return whatever status "make" returns
+    #### last of all, return whatever status "make" returns
     sys.exit(status)
     
 main()
