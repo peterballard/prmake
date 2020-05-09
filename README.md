@@ -32,21 +32,23 @@ in a high level language (such as Python),
 then creates a post-processed Makefile (usually called `Makefile`),
 then invokes `make` on that post-processed Makefile.
 
-So e.g. if you have 100 very similar targets, and "make" wildcards are not suitable,
-prmake will generate them using a loop in Python (or any other interpreted language).
+So e.g. if you have 100 targets which are very similar, but similar enough to use "make" wildcards,
+prmake can generate them using a loop in Python (or any other interpreted language).
 
 Assuming you have set up the alias described above, you then run "prmake" just as you would "make", e.g.
 
     prmake myfile.dat
 
 prmake is designed to be novice friendly:
-- Any makefile can be a prfile.
-  So start with an existing makefile as your prfile, and add as much or as little specialised code as you want.
+- All GNU make flags are supported.
+- Any makefile can be a prfile. So you can start with an existing makefile as your prfile,
+  and add as much or as little specialised code as you want.
 - prmake by default writes its output to `Makefile`,
   so a makefile is where a non-prmake-user would expect to find it.
   This means one user can use prmake without requiring all future users to use prmake.
 - prmake only overwrites a makefile which has been created by prmake,
   so this safeguards against it blowing away source code.
+- If no prfile is present, it runs make instead.
 
 Usage
 -----
