@@ -32,7 +32,7 @@ in a high level language (such as Python),
 then creates a post-processed Makefile (usually called `Makefile`),
 then invokes `make` on that post-processed Makefile.
 
-So e.g. if you have 100 targets which are very similar, but similar enough to use "make" wildcards,
+So e.g. if you have 100 targets which are very similar, but not similar enough to use "make" wildcards,
 prmake can generate them using a loop in Python (or any other interpreted language).
 
 Assuming you have set up the alias described above, you then run "prmake" just as you would "make", e.g.
@@ -48,7 +48,7 @@ prmake is designed to be novice friendly:
   This means one user can use prmake without requiring all future users to use prmake.
 - prmake only overwrites a makefile which has been created by prmake,
   so this safeguards against it blowing away source code.
-- If no prfile is present, it runs make instead.
+- If no prfile is present, it prmake runs make instead.
 
 Usage
 -----
