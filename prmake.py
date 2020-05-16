@@ -10,37 +10,81 @@ import subprocess
 import tempfile
 
 ################################################################################ <-- 80 columns
-def usage():
-    print("""
-prmake processes a prfile (usually called "Makefile.pr")
-and creates a post-processed Makefile (usually called "Makefile"),
-then invokes "make" on that post-processed Makefile.
-   
-In prmake, a Makefile.pr has two additional commands:
-    #begincode <commands>
-and
-    #endcode
-<commands> need not be a single word, but usually it is, e.g. "python".
-The text between the #begincode and #endcode lines is put in a temporary file,
-and then the command
-    <commands> <temporary_file>
-is run as a Python subprocess,
-with its standard output piped to the post-processed Makefile.
-Everything else in the prfile is piped unchanged to the post-processed Makefile.
+def usagelong():
+    sys.stdout.write("""prmake is a "make" pre-processor.
+It processes a *prfile* and builds a *makefile*,
+then invokes "make" using *makefile* as the makefile.
+This (in the author's opinion) simplifies the creation and maintenance of
+makefiles with complicated rules or many similar targets.
 
-Usage: prmake [options]    or    python prmake.py [options]
-    The following options are processed by prmake:
-    -f <Makefile>         specifies the Makefile
-    --file=<Makefile>     specifies the Makefile
-    --makefile=<Makefile> specifies the Makefile
-    -h displays this message
-    --make=<NAME> specifies the "make" executable, default is "make"
-    --prfile=<PRFILE> specifies prfile name. Overrides --prext. Defaults in order: "GNUmakefile.pr", "makefile.pr", "Makefile.pr".
-    --prext=<PREXT> specifies extension of prfiles. Default is ".pr"
-    i.e. Makefile usually called "Makefile", so prfile usually called "Makefile.pr"
-    --prforce=1 forces the rebuild of the post-processed Makefile (normally only remade if out of date)
-    --prkeep=1 means temporary files are kept (and their locations printed)
-    All other command line arguments are passed to "make".
+prmake easily co-exists with "make":
+* "make" users are not forced to use prmake; they can continue to use "make"
+  instead of prmake, whether or not a *prfile* exists.
+* prmake users are not forced to use "make"; prmake behaves exactly like "make"
+  if no *prfile* exists.
+
+Procedure:
+
+1. prmake looks for a *prfile* and a *makefile*.
+Default *makefile* names are in order: GNUmakefile, makefile, Makefile .
+Default *prfile* names are in order: GNUmakefile.pr, makefile.pr, Makefile.pr .
+These can both be overridden with command line options (run "prmake -h").
+
+2a. If neither *prfile* not *makefile* exists, prmake exits.
+
+2b. If *prfile* does not exist but *makefile* exists,
+prmake invokes "make" using that *makefile* as the makefile.
+
+2c. Every *makefile* created by prmake has a special header as a comment
+in its first line. If *prfile* and *makefile* both exist,
+and *makefile* does not contain that header, prmake exits with a warning.
+prmake will never overwrite a *makefile* which does not contain that header.
+
+2d. Otherwise (i.e. *prfile* exists, and either *makefile* does not exist,
+or contains a header indicating it has been created by a previous prmake run),
+prmake builds a *makefile* according to the following rules:
+
+3. A *prfile* has 3 special commands: #dependency, #begincode and #endcode,
+and all must be the first word in a the line.
+
+3a. Every file name on the same line as #dependency is a dependency for building
+the *makefile*. *prfile* is a dependency by default.
+
+3b. The #begincode and #endcode commands must be a pair, like this:
+
+#begincode EXECUTABLE
+<one of more lines of code>
+#endcode
+
+EXECUTABLE need not be a single word, but usually it is, e.g. "python".
+Everything between #begincode and #endcode is put in a temporary file
+(which we refer to as TMPFILE), then the command:
+ EXECUTABLE TMPFILE
+is run, with its standard output piped to *makefile*.
+
+3c. Everything else in *prfile* is piped unchanged to *makefile*.
+
+4. Then "make" is run, using *makefile* as the makefile.
+""")
+    sys.exit(1)
+################################################################################ <-- 1 columns
+
+################################################################################ <-- 80 columns
+def usage():
+    sys.stdout.write("""Usage: prmake [options]    or    python prmake.py [options]
+  The following options are processed by prmake:
+    -f FILE         specifies FILE as a *makefile*.
+    --file=FILE     specifies FILE as a *makefile*.
+    --makefile=FILE specifies FILE as a *makefile*.
+    -h              Displays this message.
+    --make=NAME     Specifies NAME as the make executable, default is "make".
+    --prfile=FILE   Specifies FILE as the *prfile* name.
+    --prext=PREXT   If --prfile not set, the *prfile* name is the *makefile*
+                    name plus PREXT as an extension. Default is ".pr".
+    --prforce       Forces the rebuild of the *makefile*.
+    --prkeep        Temporary files are kept, and their names printed.
+    --prhelp        For more help.
+  All other command line options are passed to "make".
 """)
     sys.exit(1)
 ################################################################################ <-- 1 columns
@@ -49,17 +93,39 @@ Usage: prmake [options]    or    python prmake.py [options]
 # makefile is the post-processed Makefile
 def make_Makefile(prfile, makefile, prforce, prkeep):
     if not os.path.exists(prfile) and not os.path.exists(makefile):
-        sys.stdout.write("Neither %s nor %s exists, exiting.\n" % (prfile, makefile))
-        sys.exit(1)
+        sys.stdout.write("prmake error: Neither %s nor %s exists, exiting.\n" % (prfile, makefile))
+        usage()
         
     if not os.path.exists(prfile):
-        sys.stdout.write("No %s, so not rebuilding %s\n" % (prfile, makefile))
+        sys.stdout.write("prmake: No %s, so not rebuilding %s\n" % (prfile, makefile))
         return
-    
-    if not prforce and os.path.exists(makefile) and os.path.getmtime(prfile) < os.path.getmtime(makefile):
-        # makefile exists and is up to date, and we are not forcing a rebuild using prmake, so do nothing
-        sys.stdout.write("%s is up to date\n" % makefile)
-        return
+
+    ip = open(prfile, "r")
+    lines = ip.readlines()
+    ip.close()
+
+    # makefile always depends on prfile
+    dependencies = [prfile]
+    # check for extra dependencies in the prfile. Whitespace separated
+    for line in lines:
+        words = line.split()
+        if len(words) and words[0]=="#dependency":
+            dependencies.extend(words[1:])
+
+    # determine whether makefile is already up-to-date
+    if os.path.exists(makefile) and not prforce:
+        # makefile exists, and we are not forcing a rebuild using prmake --prforce,
+        # So maybe it is up to date: let's just check the dependencies
+        for d in dependencies:
+            if not os.path.exists(d):
+                sys.stdout.write("prmake: Cannot find dependency %s, forcing rebuild of %s\n" % (d, makefile))
+                break
+            if os.path.getmtime(d) >= os.path.getmtime(makefile):
+                break # dependency is newer, we have to rebuild makefile
+        else:
+            # makefile is also later than all dependencies, so it is up to date
+            sys.stdout.write("prmake: %s is up to date\n" % makefile)
+            return
 
     # if makefile exists, check it is not a source
     if os.path.exists(makefile):
@@ -67,16 +133,16 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
         line = ip.readline()
         ip.close()
         if line.find("# created automatically by prmake") != 0:
-            sys.stdout.write("Stopping because %s already exists and is not output from prmake. Rename or delete %s, or use make instead of prmake.\n" % (makefile, makefile))
+            sys.stdout.write("prmake warning: Stopping because %s already exists and is not output from prmake. Rename or delete %s, or use make instead of prmake.\n" % (makefile, makefile))
             sys.exit(1)
 
-    sys.stdout.write("Building: %s\n" % makefile)
+    sys.stdout.write("prmake: Building %s\n" % makefile)
     # write to makefile with "fail" postpended, only rename to makefile if all is successful
     if os.path.exists(makefile):
         os.remove(makefile)
     if os.path.exists(makefile+"fail"):
         os.remove(makefile+"fail")
-    ip = open(prfile, "r")
+
     op = open(makefile+"fail", "w")
     op.write("# created automatically by prmake  <--- prmake checks for this string\n")
     op.write("##########################\n")
@@ -91,10 +157,14 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
     
     doing_code = 0
     linenum = 0
-    for line in ip.readlines():
+    for line in lines:
         linenum += 1
         words = line.split()
-        if len(words) and words[0]=="#begincode":
+
+        if len(words) and words[0]=="#dependency":
+            pass
+        
+        elif len(words) and words[0]=="#begincode":
             if doing_code:
                 raise Exception("nested #begincode statements at line %d\n" % linenum)
             if len(words)==1:
@@ -118,7 +188,7 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
             # add the file name to "command"
             cmd = command + " " + tfname
             if prkeep:
-                sys.stdout.write("Keeping temporary file from command: %s\n" % cmd)
+                sys.stdout.write("prmake: Keeping temporary file from command: %s\n" % cmd)
             try:
                 s = subprocess.check_output(cmd, shell=True)
             except subprocess.CalledProcessError: # this is raised if the subprocess raises an error
@@ -135,7 +205,7 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
             
         else:
             op.write(line)
-    ip.close()
+
     if doing_code:
         raise Exception("missing #endcode statement")
     op.close()
@@ -148,8 +218,8 @@ def main():
     prfiles = []   # names of prfile(s) 
     makefiles = [] # nmes of makefile(s)
     j = 1
-    prforce = 0
-    prkeep = 0
+    prforce = False
+    prkeep = False
     prext = ".pr"
     make = "make" # executable for make. User may want to specify a path, or even a different version of "make"
     while j < len(sys.argv):
@@ -157,28 +227,26 @@ def main():
 
         # arguments beginning with "--pr" or "-pr" are used by prmake, and are not passed on to "make"
         if arg[:4]=="--pr" or arg[:3]=="-pr":
-            parts = arg.split("=")
-            if len(parts)!=2:
-                usage()
-            
-            pvar = parts[0].replace("-", "") # little trick to handle either "-" or "--" before the argument name
-
-            if pvar in ["prforce", "prkeep"] and parts[1] not in ["0", "1"]:
-                sys.stdout.write("Error: argument %s can only take values 0 (meaning false) or 1 (meaning true)" % pvar)
-                usage()
-            
-            if len(parts)==2 and pvar=="prforce":
-                prforce = int(parts[1])
-            elif len(parts)==2 and pvar=="prkeep":
-                prkeep = int(parts[1])
-            elif len(parts)==2 and pvar=="prext":
-                prext = parts[1]
-            elif len(parts)==2 and pvar=="prfile":
-                prfiles.append(parts[1])
+             # little trick to handle either "-" or "--" before the argument name
+            if arg[:4]=="--pr":
+                pvar = arg[2:]
             else:
-                sys.stdout.write("unknown prmake argument %s\n" % arg)
-                usage()
+                pvar = arg[1:]
 
+            if pvar[:6]=="prext=":
+                prext = pvar[6:]
+            elif pvar[:7]=="prfile=":
+                prfiles.append(pvar[7:])
+            elif pvar=="prforce":
+                prforce = True
+            elif pvar=="prhelp":
+                usagelong()
+            elif pvar=="prkeep":
+                prkeep = True
+            else:
+                sys.stdout.write("prmake: unknown prmake option %s\n" % arg)
+                usage()
+                
         # It would be super confusing to call this option --prmake, so call it --make even though it is a prmake option
         elif arg[:7]=="--make=":
             make = arg[7:]
@@ -214,9 +282,9 @@ def main():
                 makefiles.append(makefile)
                 break
         else:
-            sys.stdout.write("no GNUmakefile%s, makefile%s or Makefile%s found, invoking ordinary make instead...\n" % (prext, prext, prext))
+            sys.stdout.write("prmake: No GNUmakefile%s, makefile%s or Makefile%s found, invoking ordinary make instead...\n" % (prext, prext, prext))
             cmd = "make " + " ".join(makeargs)
-            sys.stdout.write("Running: " + cmd + "\n")
+            sys.stdout.write("prmake: Running: " + cmd + "\n")
             status = subprocess.call(cmd, shell=True)
             sys.exit(status)
 
@@ -235,13 +303,13 @@ def main():
                 makefile = prfile[:-k]
                 makefiles.append(makefile)
             else:
-                sys.stdout.write('Error: cannot create makefile name because prfile "%s" does not end in string prext="%s"\n', prfile, prext)
+                sys.stdout.write("prmake error: cannot determine makefile name, because prfile '%s' does not end in string prext='%s'\n", prfile, prext)
                 usage()
 
     else: # len(makefiles)>0 and len(prfiles)>0:
         if len(makefiles) != len(prfiles):
             # this can happen if both makefiles and prfiles are specified from command line
-            sys.stdout.write("Error: specified %d makefiles but %d prfiles\n" % (len(makefiles), len(prfiles)))
+            sys.stdout.write("prmake error: specified %d makefiles but %d prfiles\n" % (len(makefiles), len(prfiles)))
             usage()
 
     ###########
@@ -262,7 +330,7 @@ def main():
     for makefile in makefiles:
         cmd = cmd + " -f " + makefile
     cmd = cmd + " " + " ".join(makeargs)
-    sys.stdout.write("Running: " + cmd + "\n")
+    sys.stdout.write("prmake: Running: " + cmd + "\n")
 
     #### run that command line. This is the line which actually invokes "make"
     status = subprocess.call(cmd, shell=True)
