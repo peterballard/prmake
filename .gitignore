@@ -1,5 +1,5 @@
 # ignore old versions and ~ files
-prmake.py.*
+*.*.*
 *~
 workingnotes.txt
 

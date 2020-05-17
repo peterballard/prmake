@@ -48,11 +48,11 @@ prmake is designed to be novice friendly:
   This means one user can use prmake without requiring all future users to use prmake.
 - prmake only overwrites a makefile which has been created by prmake,
   so this safeguards against it blowing away source code.
-- If no prfile is present, it prmake runs make instead.
+- If no prfile is present, prmake runs make instead.
 
 Usage
 -----
-In prmake, a prfile has two additional commands:
+In prmake, a prfile has three additional commands:
 
     #begincode <commands>
 
@@ -60,9 +60,16 @@ and
 
     #endcode
 
+and
+
+    #includecode <filename>
+
 `<commands>` need not be a single word, but usually it is, e.g. `python`.
+
 The text between the `#begincode` and `#endcode` lines is put in a temporary file,
-and then the command
+as is the contents of any `<filename>` specified by `#includecode`.
+
+Then the command
 
     <commands> <temporary_file>
 
@@ -72,17 +79,18 @@ Everything else in the prfile is piped unchanged to the makefile.
 
     Usage: prmake [options]    or    python prmake.py [options]
     The following options are processed by prmake:
-    -f <Makefile>         specifies the makefile
-    --file=<Makefile>     specifies the makefile
-    --makefile=<Makefile> specifies the makefile
-    -h displays this message
-    --make=<NAME> specifies the "make" executable, default is "make"
-    --prfile=<PRFILE> specifies prfile name. Overrides --prext. Defaults in order: "GNUmakefile.pr", "makefile.pr", "Makefile.pr".
-    --prext=<PREXT> specifies extension of prfiles. Default is ".pr"
-    i.e. makefile usually called "Makefile", prfile usually called "Makefile.pr"
-    -prforce=1 forces the rebuild of the post-processed Makefile (normally only remade if out of date)
-    --prkeep=1 means temporary files are kept (and their locations printed)
-    All other command line arguments are passed to "make".
+    -f FILE         specifies FILE as a *makefile*.
+    --file=FILE     specifies FILE as a *makefile*.
+    --makefile=FILE specifies FILE as a *makefile*.
+    -h              Displays this message.
+    --make=NAME     Specifies NAME as the make executable, default is "make".
+    --prfile=FILE   Specifies FILE as the *prfile* name.
+    --prext=PREXT   If --prfile not set, the *prfile* name is the *makefile*
+                    name plus PREXT as an extension. Default is ".pr".
+    --prforce       Forces the rebuild of the *makefile*.
+    --prkeep        Temporary files are kept, and their names printed.
+    --prhelp        For more help.
+    All other command line options are passed to "make".
 
 License
 -------
