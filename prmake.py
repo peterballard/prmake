@@ -17,54 +17,39 @@ then invokes "make" using *makefile* as the makefile.
 This (in the author's opinion) simplifies the creation and maintenance of
 makefiles with complicated rules or many similar targets.
 
-prmake easily co-exists with "make":
+prmake can co-exist with "make":
 * "make" users are not forced to use prmake; they can continue to use "make"
-  instead of prmake, whether or not a *prfile* exists.
+  instead of prmake, whether or not a *prfile* exists
 * prmake users are not forced to use "make"; prmake behaves exactly like "make"
-  if no *prfile* exists.
+  (using *makefile*) if no *prfile* exists.
+* prmake users cannot accidentally overwrite a useful *makefile*.
+  Every *makefile* created by prmake has a special comment in its first line.
+  prmake exits if *makefile* does not begin with than comment.
 
-Procedure:
-
-1. prmake looks for a *prfile* and a *makefile*.
-Default *makefile* names are in order: GNUmakefile, makefile, Makefile .
-Default *prfile* names are in order: GNUmakefile.pr, makefile.pr, Makefile.pr .
-These can both be overridden with command line options (run "prmake -h").
-
-2a. If neither *prfile* not *makefile* exists, prmake exits.
-
-2b. If *prfile* does not exist but *makefile* exists,
-prmake invokes "make" using that *makefile* as the makefile.
-
-2c. Every *makefile* created by prmake has a special header as a comment
-in its first line. If *prfile* and *makefile* both exist,
-and *makefile* does not contain that header, prmake exits with a warning.
-prmake will never overwrite a *makefile* which does not contain that header.
-
-2d. Otherwise (i.e. *prfile* exists, and either *makefile* does not exist,
-or contains a header indicating it has been created by a previous prmake run),
-prmake builds a *makefile* according to the following rules:
-
-3. A *prfile* has 3 special commands: #dependency, #begincode and #endcode,
-and all must be the first word in a the line.
-
-3a. Every file name on the same line as #dependency is a dependency for building
-the *makefile*. *prfile* is a dependency by default.
-
-3b. The #begincode and #endcode commands must be a pair, like this:
+A *prfile* has 3 special commands: #begincode, #includecode and #endcode.
+The #begincode and #endcode commands must be a pair,
+optionally with one or more #includecode lines in between them,
+like this:
 
 #begincode EXECUTABLE
-<one of more lines of code>
+<code>
+#includecode FILENAME
+<perhaps more code>
 #endcode
 
 EXECUTABLE need not be a single word, but usually it is, e.g. "python".
-Everything between #begincode and #endcode is put in a temporary file
-(which we refer to as TMPFILE), then the command:
+
+Everything between #begincode and #endcode is piped to a temporary file
+(which we refer to as TMPFILE); except for any #includecode lines,
+in which case the contents of FILENAME is piped to TMPFILE.
+
+Then the command:
  EXECUTABLE TMPFILE
 is run, with its standard output piped to *makefile*.
 
-3c. Everything else in *prfile* is piped unchanged to *makefile*.
+Everything else in *prfile* is piped unchanged to *makefile*.
 
-4. Then "make" is run, using *makefile* as the makefile.
+Then "make" is run, using the newly created *makefile* as the makefile.
 """)
     sys.exit(1)
 ################################################################################ <-- 1 columns
@@ -106,11 +91,11 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
 
     # makefile always depends on prfile
     dependencies = [prfile]
-    # check for extra dependencies in the prfile. Whitespace separated
+    # check for extra dependencies in any #includecode statements
     for line in lines:
         words = line.split()
-        if len(words) and words[0]=="#dependency":
-            dependencies.extend(words[1:])
+        if len(words) and words[0]=="#includecode":
+            dependencies.append(words[1])
 
     # determine whether makefile is already up-to-date
     if os.path.exists(makefile) and not prforce:
@@ -118,7 +103,7 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
         # So maybe it is up to date: let's just check the dependencies
         for d in dependencies:
             if not os.path.exists(d):
-                sys.stdout.write("prmake: Cannot find dependency %s, forcing rebuild of %s\n" % (d, makefile))
+                sys.stdout.write("prmake: Cannot find dependency %s\n" % d)
                 break
             if os.path.getmtime(d) >= os.path.getmtime(makefile):
                 break # dependency is newer, we have to rebuild makefile
@@ -160,11 +145,8 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
     for line in lines:
         linenum += 1
         words = line.split()
-
-        if len(words) and words[0]=="#dependency":
-            pass
         
-        elif len(words) and words[0]=="#begincode":
+        if len(words) and words[0]=="#begincode":
             if doing_code:
                 raise Exception("nested #begincode statements at line %d\n" % linenum)
             if len(words)==1:
@@ -201,7 +183,18 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
                 os.remove(tfname)  # temporary file is no longer needed, so delete it
                 
         elif doing_code:
-            codefragment += line
+            if len(words) and words[0]=="#includecode":
+                if len(words) >= 2:
+                    ip2 = open(words[1], "r")
+                    contents = ip2.read()
+                    ip2.close()
+                    codefragment += contents
+                if len(words) > 2:
+                    sys.stdout.write("prmake: Including code but ignoring redundant words in line: %s\n" % line.strip())
+                if len(words) == 1:
+                    sys.stdout.write("prmake: Ignoring line: %s\n" % line.strip())
+            else:
+                codefragment += line
             
         else:
             op.write(line)
