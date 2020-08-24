@@ -2,6 +2,7 @@
 #
 #(C) Peter Ballard, 2019, 2020
 # Version 0.3, 9-May-2020
+# Version 0.3.1, 24-Aug-2020  (this should match printed comment header)
 #  Free to reuse and modify under the terms of the GPL
 
 import sys
@@ -132,6 +133,7 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
     op.write("# created automatically by prmake  <--- prmake checks for this string\n")
     op.write("##########################\n")
     op.write("# Generated from %s using the 'prmake' command.\n" % (prfile))
+    op.write("# https://github.com/peterballard/prmake (version 0.3.1, 24-Aug-2020)\n")
     op.write("# If you are using prmake, edit %s rather than this file, because %s is the source.\n" % (prfile, prfile))
     op.write("# \n")
     op.write("# If you are NOT using prmake, and need to edit this file:\n")
