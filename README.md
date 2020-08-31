@@ -19,7 +19,7 @@ Installation
 `prmake` has a single source: `prmake.py`
 
 To use: download it, and put it in a directory of your choice (let's call it MYDIR).
-You can then call it with `python MYDIR/prmake.py`
+You can then call it with `python MYDIR/prmake.py`,
 but I like to alias this to the command prmake, i.e. add this line to `.bashrc`:
 
     alias prmake='python MYDIR/prmake.py'
