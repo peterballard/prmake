@@ -10,7 +10,7 @@ Version
 Current version is 0.3.1, 24-Aug-2020.
 This is a minor change from 0.3, adding a little more information to the comment header in a Makefile.
 
-Version 0.3 was released in May 2020. It is a major change, breaking compatibility with Versions 0.1 and 0.2
+Version 0.3 was released in May 2020. It was a major change, breaking compatibility with Versions 0.1 and 0.2
 
 Earlier versions are retrospectively named 0.2 (March 2020) and 0.1 (December 2019),
 
