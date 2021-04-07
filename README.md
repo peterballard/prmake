@@ -1,15 +1,17 @@
 # prmake
 Preprocessor to build more powerful makefiles
 
-(c) Peter Ballard, 2019, 2020
+(c) Peter Ballard, 2019, 2020, 2021
 
 Free to reuse and modify under the terms of the GPLv3 (see "License" below).
 
 Version
 -------
-Current version is 0.3.1, 24-Aug-2020.
-This is a minor change from 0.3, adding a little more information to the comment header in a Makefile.
+Current version is 0.4.0, 7-Apr-2021. 
+It adds CRC checking to make it almost impossible to accidentally overwrite a hand edited Makefile.
+It is compatible with 0.3.x.
 
+Version 0.3.1 (August 2020) was a minor change from 0.3, adding a little more information to the comment header in a Makefile.
 Version 0.3 was released in May 2020. It was a major change, breaking compatibility with Versions 0.1 and 0.2
 
 Earlier versions are retrospectively named 0.2 (March 2020) and 0.1 (December 2019),
@@ -85,6 +87,8 @@ Everything else in the prfile is piped unchanged to the makefile.
     -f FILE         specifies FILE as a *makefile*.
     --file=FILE     specifies FILE as a *makefile*.
     --makefile=FILE specifies FILE as a *makefile*.
+                    Default *makefile* names, in order of precedence, are
+                    "GNUMakefile", "makefile" and "Makefile".
     -h              Displays this message.
     --make=NAME     Specifies NAME as the make executable, default is "make".
     --prfile=FILE   Specifies FILE as the *prfile* name.

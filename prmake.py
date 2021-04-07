@@ -1,18 +1,21 @@
 # prmake.py
 #
-#(C) Peter Ballard, 2019, 2020
-# Version 0.3, 9-May-2020
+#(C) Peter Ballard, 2019, 2020, 2021
+# Version 0.3,    9-May-2020
 # Version 0.3.1, 24-Aug-2020  (this should match printed comment header)
+# Version 0.4.0,  7-Apr-2021 -- include CRC check. 0.3 files should work with a warning
+
 #  Free to reuse and modify under the terms of the GPL
 
 import sys
 import os
 import subprocess
 import tempfile
+import zlib # for CRC checks
 
 ################################################################################ <-- 80 columns
 def usagelong():
-    sys.stdout.write("""prmake is a "make" pre-processor.
+    sys.stdout.write("""prmake (current version 0.4.0) is a "make" pre-processor.
 It processes a *prfile* and builds a *makefile*,
 then invokes "make" using *makefile* as the makefile.
 This (in the author's opinion) simplifies the creation and maintenance of
@@ -24,8 +27,8 @@ prmake can co-exist with "make":
 * prmake users are not forced to use "make"; prmake behaves exactly like "make"
   (using *makefile*) if no *prfile* exists.
 * prmake users cannot accidentally overwrite a useful *makefile*.
-  Every *makefile* created by prmake has a special comment in its first line.
-  prmake exits if *makefile* does not begin with than comment.
+  Every *makefile* created by prmake has a magic string and CRC in its first line.
+  prmake exits if *makefile* does include the magic string and pass the CRC check.
 
 A *prfile* has 3 special commands: #begincode, #includecode and #endcode.
 The #begincode and #endcode commands must be a pair,
@@ -57,11 +60,14 @@ Then "make" is run, using the newly created *makefile* as the makefile.
 
 ################################################################################ <-- 80 columns
 def usage():
-    sys.stdout.write("""Usage: prmake [options]    or    python prmake.py [options]
+    sys.stdout.write("""prmake version 0.4.0
+Usage: prmake [options]    or    python prmake.py [options]
   The following options are processed by prmake:
     -f FILE         specifies FILE as a *makefile*.
     --file=FILE     specifies FILE as a *makefile*.
     --makefile=FILE specifies FILE as a *makefile*.
+                    Default *makefile* names, in order of precedence, are
+                    "GNUMakefile", "makefile" and "Makefile".
     -h              Displays this message.
     --make=NAME     Specifies NAME as the make executable, default is "make".
     --prfile=FILE   Specifies FILE as the *prfile* name.
@@ -73,6 +79,88 @@ def usage():
   All other command line options are passed to "make".
 """)
     sys.exit(1)
+################################################################################ <-- 1 columns
+
+# Functions for CRC checks
+
+# calculate the CRC of a file, NOT INCLUDING the first line
+# return header, crc tuple; where header is a string and crc is an integer
+def calc_crc(f):
+    ip = open(f, "rb")
+
+    # read header
+    headerbytes = ip.readline()
+    header = headerbytes.decode() # turn it into a string
+    
+    # calc crc of rest of file
+    #crc = zlib.crc32(ip.read())
+    # do this a line at a time, in case the file is huge
+    crc = 0
+    while True:
+        line = ip.readline()
+        if len(line)==0:
+            break
+        crc = zlib.crc32(line, crc)
+    ip.close()
+
+    # just to be sure it is 32 bit in all Python versions, as recommended at https://docs.python.org/3/library/zlib.html
+    crc = crc & 0xffffffff
+    return header, crc
+
+# return 0 = wrong or missing CRC, looks like file has been edited. Not safe to overwrite.
+# return 1 = correct CRC or old style header, safe to overwrite.
+def check_crc(f):
+    header, crc = calc_crc(f)
+    
+    if header.find("# created automatically by prmake") == 0:
+        words = header.split()
+        if header.find("# created automatically by prmake, CRC 0x") == 0 and len(words[6])==10:
+            try:
+                expected_crc = int(words[6], base=16)
+            except ValueError:
+                sys.stdout.write("prmake: %s exists but has a badly formed CRC, which means it has been edited\n" % f)
+                return 0
+            if expected_crc == crc:
+                return 1 # correct CRC, file is clean
+            else:
+                sys.stdout.write("prmake: %s exists but has wrong CRC, which means it has been edited\n" % f)
+                return 0
+        else:
+            # old style header, can not tell whether or not it has been edited. Give a warning, and assume it has not been
+            sys.stdout.write("prmake: old style header (prmake 0.3), safe to overwrite\n")
+            return 1
+    else:
+        sys.stdout.write("prmake: %s exists but does not have a prmake header, which means it is not from prmake\n" % f)
+        return 0
+
+# no return value, but creates new file outfile
+def add_crc(f, outfile):
+    header, crc = calc_crc(f)
+
+    ip = open(f, "rb")
+    op = open(outfile, "wb")
+
+    if header.find("# created automatically by prmake, CRC TBC") == 0:
+        ignore = ip.readline() # a dummy readline
+        newheader = header.replace("TBC", "0x%8x" % crc, 1)
+        newbytes = newheader.encode()
+        op.write(newbytes) # write the modified header, which includes a CRC
+    else:
+        sys.stdout.write("prmake warning: could not add CRC to header of %s\n" % outfile)
+
+    # dump the rest of ip to op
+    # note that if the "if" above is not true, this includes the header
+    #op.write(ip.read())
+    # do this a line at a time, in case the file is huge
+    while True:
+        line = ip.readline()
+        if len(line)==0:
+            break
+        op.write(line)
+    
+    ip.close()
+    op.close()
+
 ################################################################################ <-- 1 columns
 
 # prfile is the original Makefile.pr
@@ -115,11 +203,8 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
 
     # if makefile exists, check it is not a source
     if os.path.exists(makefile):
-        ip = open(makefile, "r")
-        line = ip.readline()
-        ip.close()
-        if line.find("# created automatically by prmake") != 0:
-            sys.stdout.write("prmake warning: Stopping because %s already exists and is not output from prmake. Rename or delete %s, or use make instead of prmake.\n" % (makefile, makefile))
+        if check_crc(makefile)==0:
+            sys.stdout.write("prmake warning: Stopping because %s already exists and has been edited. Rename or delete %s, or use 'make' instead of 'prmake'.\n" % (makefile, makefile))
             sys.exit(1)
 
     sys.stdout.write("prmake: Building %s\n" % makefile)
@@ -130,15 +215,16 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
         os.remove(makefile+"fail")
 
     op = open(makefile+"fail", "w")
-    op.write("# created automatically by prmake  <--- prmake checks for this string\n")
+    #         ################################################################################ <-- 80 columns
+    op.write("# created automatically by prmake, CRC TBC  <--- prmake checks for this string\n")
     op.write("##########################\n")
     op.write("# Generated from %s using the 'prmake' command.\n" % (prfile))
-    op.write("# https://github.com/peterballard/prmake (version 0.3.1, 24-Aug-2020)\n")
+    op.write("# https://github.com/peterballard/prmake (version 0.4.0, 7-Apr-2021)\n")
     op.write("# If you are using prmake, edit %s rather than this file, because %s is the source.\n" % (prfile, prfile))
     op.write("# \n")
-    op.write("# If you are NOT using prmake, and need to edit this file:\n")
-    op.write("#   delete the string '# created automatically by prmake' in the first line of this file,\n")
-    op.write("#   to prevent prmake overwriting this file in future.\n")
+    op.write("# If you are NOT using prmake: it is safe to edit this file,\n")
+    op.write("#   but it is good practice to delete the first line,\n")
+    op.write("#   to be 100% sure that prmake does not overwrite it in future.\n")
     op.write("##########################\n")
     op.write("\n")
     
@@ -204,7 +290,10 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
     if doing_code:
         raise Exception("missing #endcode statement")
     op.close()
-    os.rename(makefile+"fail", makefile)
+    #os.rename(makefile+"fail", makefile)
+    add_crc(makefile+"fail", makefile+"fail2")
+    os.rename(makefile+"fail2", makefile)
+    os.remove(makefile+"fail")
 
 
 def main():
