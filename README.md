@@ -101,7 +101,7 @@ Everything else in the prfile is piped unchanged to the makefile.
 
 Name and History
 ----------------
-The name is homage to `pmake`, which was make with a C pre-processor,
+The name pays homage to `pmake`, which was `make` with a C pre-processor,
 and was heavily used at two of my previous employers:
 [Austek Microsystems](https://en.wikipedia.org/wiki/Austek_Microsystems)
 and [RADLogic](https://www.radlogic.com.au/).
