@@ -99,6 +99,14 @@ Everything else in the prfile is piped unchanged to the makefile.
     --prhelp        For more help.
     All other command line options are passed to "make".
 
+Name and History
+----------------
+The name is homage to `pmake`, which was make with a C pre-processor,
+and was heavily used at two of my previous employers:
+[Austek Microsystems](https://en.wikipedia.org/wiki/Austek_Microsystems)
+and [RADLogic](https://www.radlogic.com.au/).
+
+
 License
 -------
     This program is free software: you can redistribute it and/or modify
