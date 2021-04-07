@@ -106,7 +106,6 @@ and was heavily used at two of my previous employers:
 [Austek Microsystems](https://en.wikipedia.org/wiki/Austek_Microsystems)
 and [RADLogic](https://www.radlogic.com.au/).
 
-
 License
 -------
     This program is free software: you can redistribute it and/or modify
