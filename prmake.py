@@ -1,9 +1,12 @@
+#!/usr/bin/env python
+#
 # prmake.py
 #
 #(C) Peter Ballard, 2019, 2020, 2021
-# Version 0.3,    9-May-2020
-# Version 0.3.1, 24-Aug-2020  (this should match printed comment header)
+# Version 0.4.1,  9-Apr-2021 -- add #!/usr/bin/env python at top
 # Version 0.4.0,  7-Apr-2021 -- include CRC check. 0.3 files should work with a warning
+# Version 0.3.1, 24-Aug-2020  (this should match printed comment header)
+# Version 0.3,    9-May-2020
 
 #  Free to reuse and modify under the terms of the GPL
 
@@ -15,7 +18,7 @@ import zlib # for CRC checks
 
 ################################################################################ <-- 80 columns
 def usagelong():
-    sys.stdout.write("""prmake (current version 0.4.0) is a "make" pre-processor.
+    sys.stdout.write("""prmake (current version 0.4.1) is a "make" pre-processor.
 It processes a *prfile* and builds a *makefile*,
 then invokes "make" using *makefile* as the makefile.
 This (in the author's opinion) simplifies the creation and maintenance of
@@ -60,7 +63,7 @@ Then "make" is run, using the newly created *makefile* as the makefile.
 
 ################################################################################ <-- 80 columns
 def usage():
-    sys.stdout.write("""prmake version 0.4.0
+    sys.stdout.write("""prmake version 0.4.1
 Usage: prmake [options]    or    python prmake.py [options]
   The following options are processed by prmake:
     -f FILE         specifies FILE as a *makefile*.
@@ -219,7 +222,7 @@ def make_Makefile(prfile, makefile, prforce, prkeep):
     op.write("# created automatically by prmake, CRC TBC  <--- prmake checks for this string\n")
     op.write("##########################\n")
     op.write("# Generated from %s using the 'prmake' command.\n" % (prfile))
-    op.write("# https://github.com/peterballard/prmake (version 0.4.0, 7-Apr-2021)\n")
+    op.write("# https://github.com/peterballard/prmake (version 0.4.1, 9-Apr-2021)\n")
     op.write("# If you are using prmake, edit %s rather than this file, because %s is the source.\n" % (prfile, prfile))
     op.write("# \n")
     op.write("# If you are NOT using prmake: it is safe to edit this file,\n")

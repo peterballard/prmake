@@ -7,13 +7,9 @@ Free to reuse and modify under the terms of the GPLv3 (see "License" below).
 
 Version
 -------
-Current version is 0.4.0, 7-Apr-2021. 
-It adds CRC checking to make it almost impossible to accidentally overwrite a hand edited Makefile.
-It is compatible with 0.3.x.
-
-Version 0.3.1 (August 2020) was a minor change from 0.3, adding a little more information to the comment header in a Makefile.
+Current version is 0.4.1, 9-Apr-2021. 
+Version 0.4.0 (7-Apr-2021) adds CRC checking. It is compatible with 0.3.x.
 Version 0.3 was released in May 2020. It was a major change, breaking compatibility with Versions 0.1 and 0.2
-
 Earlier versions are retrospectively named 0.2 (March 2020) and 0.1 (December 2019),
 
 Installation
@@ -51,7 +47,8 @@ Assuming you have set up the alias described above, you then run `prmake` just a
 - `prmake` by default writes its output to `Makefile`,
   so a makefile is where a non-prmake-user would expect to find it.
   This means one user can use `prmake` without requiring all future users to use `prmake`.
-- `prmake` only overwrites a makefile which has been created by `prmake`,
+- `prmake` only overwrites a makefile which has been created by `prmake`
+  (checked both with a CRC check and a magic string),
   so this safeguards against it blowing away source code.
 - If no prfile is present, `prmake` runs `make` instead.
 
@@ -105,6 +102,7 @@ The name pays homage to `pmake`, which was `make` with a C pre-processor,
 and was heavily used at two of my previous employers:
 [Austek Microsystems](https://en.wikipedia.org/wiki/Austek_Microsystems)
 and [RADLogic](https://www.radlogic.com.au/).
+The "pr" stands for "pre-processor".
 
 License
 -------
