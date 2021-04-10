@@ -19,20 +19,26 @@ Description
 `make` ( https://www.gnu.org/software/make/ ) is a great tool, but it is hard to make complicated rules.
 `prmake` makes it easier to write complicated makefile rules.
 
-`prmake` processes a *prfile* (usually called `Makefile.pr`)
-in a high level language (such as Python),
+`prmake` takes as its source *prfile* (usually called `Makefile.pr`),
+which is processed in a high level language (such as Python),
 creating a post-processed makefile (usually called `Makefile`);
 then invokes `make` on that post-processed makefile.
 
 `prmake` is designed so that it can replace `make` gradually and without disruption:
+
 - `prmake` is invoked in the same way as `make`.
+
 - `prmake` by default writes its output to `Makefile`,
   so a makefile is where a non-prmake-user would expect to find it.
   This means one user can use `prmake` without requiring other users to use `prmake`.
-- `prmake` refuses to overwrite a hand-edited makefile;
+
+- `prmake` will not overwrite a hand-edited makefile;
   it only overwrites a makefile which has been created by `prmake`.
+
 - If no prfile is present, `prmake` runs `make` instead.
-- All `make` code still works. So the user can start with an existing makefile as their prfile,
+
+- All `make` code works. So the user can start with an existing makefile as their prfile
+  (i.e. simply `mv Makefile Makefile.pr`),
   and add as much or as little specialised code as they want.
 
 Usage - prmake syntax
