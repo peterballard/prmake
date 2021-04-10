@@ -19,7 +19,7 @@ Description
 `make` ( https://www.gnu.org/software/make/ ) is a great tool, but it is hard to make complicated rules.
 `prmake` makes it easier to write complicated makefile rules.
 
-`prmake` processes a prfile (usually called `Makefile.pr`)
+`prmake` processes a *prfile* (usually called `Makefile.pr`)
 in a high level language (such as Python),
 creating a post-processed makefile (usually called `Makefile`);
 then invokes `make` on that post-processed makefile.
