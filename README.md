@@ -5,15 +5,6 @@ Preprocessor to build more powerful makefiles
 
 Free to reuse and modify under the terms of the GPLv3 (see "License" below).
 
-Installation
-------------
-1. Download `prmake-0.4.2.tar.gz`
-2. Untar `prmake-0.4.2.tar.gz`; on most Unix-like systems the command `tar -xf prmake-0.4.2.tar.gz` will do this.
-3. `cd prmake-0.4.2`
-4. `python setup.py install`
-
-If for someone reason this does not work, simply copy the file `prmake` to somewhere in your `PATH`.
-
 Description
 -----------
 `make` ( https://www.gnu.org/software/make/ ) is a great tool, but it is hard to write complicated rules.
@@ -46,6 +37,17 @@ and be able to edit *makefiles* safe in the knowledge that `prmake` will not ove
 All `make` code works under `prmake`. So the user can start with an existing *makefile* as their *prfile*
 (i.e. by renaming `Makefile` to `Makefile.pr`),
 and add as much or as little specialised code as they want.
+
+Installation
+------------
+1. Download the source (code -> Download zip)
+2. unzip the source.
+3. Go to the directory containing the source files.
+4. type `python setup.py install`
+
+If for someone reason this does not work, download the file `prmake`,
+ensure that it is executable (`chmod a+x prmake`),
+and move it to somewhere in your `PATH`.
 
 Usage - prmake syntax
 ---------------------

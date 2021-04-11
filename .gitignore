@@ -1,5 +1,15 @@
+### ignore everything except for the exceptions below...
+*
+*/*
+*/*/*
+
+### just these
+!prmake
+!*.py
+!README.md
+
 # ignore old versions and ~ files
-*.*.*
-*~
-workingnotes.txt
-MANIFEST
+#*.*.*
+#*~
+#workingnotes.txt
+#MANIFEST
