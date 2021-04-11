@@ -33,8 +33,8 @@ When `prmake` is invoked:
 - Otherwise, if a *makefile* is present which has not been written by `prmake`,
   `prmake` stops and issues a warning.
 
-- Otherwise, `prmake` defaults to writing its output to the *makefile* `Makefile`,
-  before running `make` on that *makefile*.
+- Otherwise, `prmake` writes a *makefile*,
+  before running `make` using that *makefile*.
 
 This means another user can come into the project without having to learn `pmake`,
 find *makefiles* where they would expect them,
@@ -46,7 +46,7 @@ and add as much or as little specialised code as they want.
 
 Usage - prmake syntax
 ---------------------
-In `prmake`, a *prfile* has three additional commands:
+In `prmake`, a *prfile* has three special commands:
 
     #begincode <commands>
 
