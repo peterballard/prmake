@@ -1,26 +1,19 @@
-# prmake version 0.4.2
-Preprocessor to build more powerful makefiles
-
-(c) Peter Ballard, 2019, 2020, 2021
-
-Free to reuse and modify under the terms of the GPLv3 (see "License" below).
+# prmake 
 
 Description
 -----------
-`make` ( https://www.gnu.org/software/make/ ) is a great tool, but it is hard to write complicated rules.
-`prmake` is a `make` preprocessor, which makes it easier to write complicated rules.
+`make` ( https://www.gnu.org/software/make/ ) is a great tool, 
+but it is hard to write complicated rules in `make`.
 
-`prmake` is designed so that it can replace `make` gradually and without disruption;
-it can be used without other users having to learn or use `prmake`.
+`prmake` is a `make` wrapper, designed to make it easier write complicated rules.
+It processes a *prfile* (usually called `Makefile.pr`),
+creating a *makefile* (usually called `Makefile`);
+and then invokes `make` on that *makefile*.
 
-`prmake` takes as its source a *prfile* (usually called `Makefile.pr`),
-which is processed in a high level language (such as Python),
-creating a post-processed *makefile* (usually called `Makefile`);
-it then invokes `make` on that post-processed *makefile*.
+The *prfile* can contain loops and conditionals written in a high-level language such as Python,
+allowing almost arbitrary complexity in `make` targets and rules.
 
-This (in the author's opinion) simplifies the creation and maintenance of
-*makefiles* with complicated rules or many similar targets.
-
+`prmake` is also designed so that it can replace `make` gradually and without disruption.
 When `prmake` is invoked:
 - If no *prfile* is present, `prmake` runs `make` instead.
 
@@ -34,7 +27,8 @@ This means another user can come into the project without having to learn `pmake
 find *makefiles* where they would expect them,
 and be able to edit *makefiles* safe in the knowledge that `prmake` will not overwrite them.
 
-All `make` code works under `prmake`. So the user can start with an existing *makefile* as their *prfile*
+All `make` code works under `prmake`. 
+So the user can start with an existing *makefile* as their *prfile*
 (i.e. by renaming `Makefile` to `Makefile.pr`),
 and add as much or as little specialised code as they want.
 
