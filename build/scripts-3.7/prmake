@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/home/pballard/miniconda3/bin/python
 #
 # prmake.py
 #
@@ -24,7 +24,6 @@ def usagelong():
 which is processed in a high level language (such as Python),
 creating a post-processed *makefile* (usually called `Makefile`);
 it then invokes `make` on that post-processed *makefile*.
-
 This (in the author's opinion) simplifies the creation and maintenance of
 *makefiles* with complicated rules or many similar targets.
 

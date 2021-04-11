@@ -26,6 +26,7 @@ it can be used without other users having to learn or use `prmake`.
 which is processed in a high level language (such as Python),
 creating a post-processed *makefile* (usually called `Makefile`);
 it then invokes `make` on that post-processed *makefile*.
+
 This (in the author's opinion) simplifies the creation and maintenance of
 *makefiles* with complicated rules or many similar targets.
 
