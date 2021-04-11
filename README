@@ -16,28 +16,37 @@ If for someone reason this does not work, simply copy the file `prmake` to somew
 
 Description
 -----------
-`make` ( https://www.gnu.org/software/make/ ) is a great tool, but it is hard to make complicated rules.
-`prmake` makes it easier to write complicated makefile rules.
+`make` ( https://www.gnu.org/software/make/ ) is a great tool, but it is hard to write complicated rules.
+`prmake` is a `make` preprocessor, which makes it easier to write complicated rules.
 
-`prmake` processes a prfile (usually called `Makefile.pr`)
-in a high level language (such as Python),
-creating a post-processed makefile (usually called `Makefile`);
-then invokes `make` on that post-processed makefile.
+`prmake` is designed so that it can replace `make` gradually and without disruption;
+it can be used without other users having to learn or use `prmake`.
 
-`prmake` is designed so that it can replace `make` gradually and without disruption:
-- `prmake` is invoked in the same way as `make`.
-- `prmake` by default writes its output to `Makefile`,
-  so a makefile is where a non-prmake-user would expect to find it.
-  This means one user can use `prmake` without requiring other users to use `prmake`.
-- `prmake` refuses to overwrite a hand-edited makefile;
-  it only overwrites a makefile which has been created by `prmake`.
-- If no prfile is present, `prmake` runs `make` instead.
-- All `make` code still works. So the user can start with an existing makefile as their prfile,
-  and add as much or as little specialised code as they want.
+`prmake` takes as its source a *prfile* (usually called `Makefile.pr`),
+which is processed in a high level language (such as Python),
+creating a post-processed *makefile* (usually called `Makefile`);
+it then invokes `make` on that post-processed *makefile*.
+
+When `prmake` is invoked:
+- If no *prfile* is present, `prmake` runs `make` instead.
+
+- Otherwise, if a *makefile* is present which has not been written by `prmake`,
+  `prmake` stops and issues a warning.
+
+- Otherwise, `prmake` defaults to writing its output to the *makefile* `Makefile`,
+  before running `make` on that *makefile*.
+
+This means another user can come into the project without having to learn `pmake`,
+find *makefiles* where they would expect them,
+and be able to edit *makefiles* safe in the knowledge that `prmake` will not overwrite them.
+
+All `make` code works under `prmake`. So the user can start with an existing *makefile* as their *prfile*
+(i.e. by renaming `Makefile` to `Makefile.pr`),
+and add as much or as little specialised code as they want.
 
 Usage - prmake syntax
 ---------------------
-In `prmake`, a prfile has three additional commands:
+In `prmake`, a *prfile* has three additional commands:
 
     #begincode <commands>
 
@@ -59,9 +68,11 @@ Then the command
     <commands> <temporary_file>
 
 is run as a Python subprocess,
-with its standard output piped to the makefile.
+with its standard output piped to the *makefile*.
 
-Everything else in the prfile is piped unchanged to the makefile.
+Everything else in the *prfile* is piped unchanged to the *makefile*.
+`prmake` then invokes `make` on that *makefile*,
+passing all command line options (except special `prmake` options) to `make`.
 
 Usage - command line
 --------------------

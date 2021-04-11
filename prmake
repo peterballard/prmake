@@ -20,19 +20,24 @@ import zlib # for CRC checks
 ################################################################################ <-- 80 columns
 def usagelong():
     sys.stdout.write("""prmake (version 0.4.2) is a "make" pre-processor.
-It processes a *prfile* and builds a *makefile*,
-then invokes "make" using *makefile* as the makefile.
-This (in the author's opinion) simplifies the creation and maintenance of
-makefiles with complicated rules or many similar targets.
+`prmake` takes as its source a *prfile* (usually called `Makefile.pr`),
+which is processed in a high level language (such as Python),
+creating a post-processed *makefile* (usually called `Makefile`);
+it then invokes `make` on that post-processed *makefile*.
 
-prmake can co-exist with "make":
-* "make" users are not forced to use prmake; they can continue to use "make"
-  instead of prmake, whether or not a *prfile* exists
-* prmake users are not forced to use "make"; prmake behaves exactly like "make"
-  (using *makefile*) if no *prfile* exists.
-* prmake users cannot accidentally overwrite a useful *makefile*.
-  Every *makefile* created by prmake has a magic string and CRC in its first line.
-  prmake exits if *makefile* does include the magic string and pass the CRC check.
+This (in the author's opinion) simplifies the creation and maintenance of
+*makefiles* with complicated rules or many similar targets.
+
+When prmake is invoked:
+* If no *prfile* is present, `prmake` runs `make` instead.
+* Otherwise, if a *makefile* is present which has not been written by `prmake`,
+  `prmake` stops and issues a warning.
+* Otherwise, `prmake` defaults to writing its output to the *makefile* `Makefile`,
+  before running `make` on that *makefile*.
+
+This means another user can come into the project without having to learn `pmake`,
+find *makefiles* where they would expect them,
+and be able to edit *makefiles* safe in the knowledge that `prmake` will not overwrite them.
 
 A *prfile* has 3 special commands: #begincode, #includecode and #endcode.
 The #begincode and #endcode commands must be a pair,
