@@ -13,7 +13,8 @@ and then invokes `make` on that *makefile*.
 The *prfile* can contain loops and conditionals written in a high-level language such as Python,
 allowing almost arbitrary complexity in `make` targets and rules.
 
-`prmake` is also designed so that it can replace `make` gradually and without disruption.
+A key feature of 
+`prmake` is that it can replace `make` gradually and without disruption.
 When `prmake` is invoked:
 - If no *prfile* is present, `prmake` runs `make` instead.
 
@@ -23,14 +24,15 @@ When `prmake` is invoked:
 - Otherwise, `prmake` writes a *makefile*,
   before running `make` using that *makefile*.
 
-This means another user can come into the project without having to learn `pmake`,
+This means:
+- Another user can come into the project without having to learn `pmake`,
 find *makefiles* where they would expect them,
 and be able to edit *makefiles* safe in the knowledge that `prmake` will not overwrite them.
 
-All `make` code works under `prmake`. 
-So the user can start with an existing *makefile* as their *prfile*
-(i.e. by renaming `Makefile` to `Makefile.pr`),
-and add as much or as little specialised code as they want.
+- A the user can start with an existing *makefile* as their *prfile*
+(i.e. by simply renaming `Makefile` to `Makefile.pr`),
+and add as much or as little specialised code as they want (or none at all!);
+because all `make` code works under `prmake`. 
 
 Installation
 ------------
