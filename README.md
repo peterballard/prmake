@@ -33,7 +33,8 @@ and edit *makefiles* safe in the knowledge that `prmake` will not overwrite them
 - **It is safe for `prmake` users.**
 If the *makefile* has been changed by another user,
 `prmake` will refuse to run.
-So there is no danger of missing updates.
+So there is no danger of missing updates,
+or getting in trouble for blowing away another user's *makefile* edits.
 And the `prmake` user's code is in *prfile*,
 where `prmake` non-users will not touch it.
 
