@@ -39,9 +39,11 @@ Installation
 3. Go to the directory containing the source files.
 4. type `python setup.py install`
 
-If for someone reason this does not work, download the file `prmake`,
-ensure that it is executable (`chmod a+x prmake`),
-and move it to somewhere in your `PATH`.
+If for someone reason this does not work,
+there is a manual workaround:
+1. Download the file `prmake`.
+2. Ensure that it is executable (`chmod a+x prmake`).
+3. Move it to somewhere in your `PATH`.
 
 Usage - prmake syntax
 ---------------------
