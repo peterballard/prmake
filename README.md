@@ -25,12 +25,12 @@ When `prmake` is invoked:
   before running `make` using that *makefile*.
 
 This means:
-- **It is safe for non-prmake users.**
+- **It is safe for non-`prmake` users.**
 Another user can come into the project without having to learn `pmake`,
 find *makefiles* where they would expect them,
 and edit *makefiles* safe in the knowledge that `prmake` will not overwrite them.
 
-- **It is safe for prmake users.**
+- **It is safe for `prmake` users.**
 If the *makefile* has been changed by another user,
 `prmake` will refuse to run.
 So there is no danger of missing updates.
