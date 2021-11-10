@@ -42,7 +42,7 @@ where `prmake` non-users will not touch it.
 All `make` code works under `prmake`,
 and all `make` command line options work under `prmake`,
 so a user can start with an existing *makefile* as their *prfile*
-and add as much or as little specialised code as they want,
+and add as much or as little specialised code as they want.
 In fact, the simplest way to start is to simply rename `Makefile` to `Makefile.pr`
 and invoke `prmake` instead of `make`;
 and no functionality will change.
