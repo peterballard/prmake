@@ -27,7 +27,7 @@ When `prmake` is invoked:
 This means:
 - Another user can come into the project without having to learn `pmake`,
 find *makefiles* where they would expect them,
-and be able to edit *makefiles* safe in the knowledge that `prmake` will not overwrite them.
+and edit *makefiles* safe in the knowledge that `prmake` will not overwrite them.
 
 - A the user can start with an existing *makefile* as their *prfile*
 (i.e. by simply renaming `Makefile` to `Makefile.pr`),
