@@ -25,14 +25,24 @@ When `prmake` is invoked:
   before running `make` using that *makefile*.
 
 This means:
-- Another user can come into the project without having to learn `pmake`,
+- **It is safe for non-prmake users.**
+Another user can come into the project without having to learn `pmake`,
 find *makefiles* where they would expect them,
 and edit *makefiles* safe in the knowledge that `prmake` will not overwrite them.
 
-- A the user can start with an existing *makefile* as their *prfile*
-(i.e. by simply renaming `Makefile` to `Makefile.pr`),
-and add as much or as little specialised code as they want (or none at all!);
-because all `make` code works under `prmake`. 
+- **It is safe for prmake users.**
+If the *makefile* has been changed by another user,
+`prmake` will refuse to run.
+So there is no danger of missing updates.
+
+- **You can use  as much or as little `prmake` functionality as you want to.**
+All `make` code works under `prmake`,
+and all `make` command line options work under `prmake`,
+so a user can start with an existing *makefile* as their *prfile*
+and add as much or as little specialised code as they want,
+In fact, the simplest way to start is to simply rename `Makefile` to `Makefile.pr`
+and invoke `prmake` instead of `make`;
+and no functionality will change.
 
 Installation
 ------------
