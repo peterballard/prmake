@@ -26,7 +26,7 @@ When `prmake` is invoked:
 
 This means:
 - **It is safe for `prmake` non-users.**
-Another user can come into the project without having to learn `pmake`,
+Another user can come into the project without having to learn `prmake`,
 find *makefiles* where they would expect them,
 and edit *makefiles* safe in the knowledge that `prmake` will not overwrite them.
 
@@ -42,10 +42,17 @@ where `prmake` non-users will not touch it.
 All `make` code works under `prmake`,
 and all `make` command line options work under `prmake`,
 so a user can start with an existing *makefile* as their *prfile*
-and add as much or as little specialised code as they want.
-In fact, the simplest way to start is to simply rename `Makefile` to `Makefile.pr`
-and invoke `prmake` instead of `make`;
-and no functionality will change.
+and add as much or as little specialised code as they want:
+
+ - The simplest first step to begin is to run `prmake` instead of `make`.
+ With no *prfile* present, `prmake` will simply invoke `make`, so nothing will change.
+
+ - The simplest second step is to rename `Makefile` to `Makefile.pr`,
+ and again no functionality will change.
+
+ - Then you can start experimenting with `#begincode` and `#endcode`
+ as much or as little as you want.
+
 
 Installation
 ------------
