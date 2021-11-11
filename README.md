@@ -44,11 +44,12 @@ and all `make` command line options work under `prmake`,
 so a user can start with an existing *makefile* as their *prfile*
 and add as much or as little specialised code as they want:
 
-  - The simplest first step to begin is to run `prmake` instead of `make`.
+  - The simplest first step is to run `prmake` instead of `make`.
     With no *prfile* present, `prmake` will simply invoke `make`, so nothing will change.
 
-  - The simplest second step is to rename `Makefile` to `Makefile.pr`,
-    and again no functionality will change.
+  - The simplest second step is to rename `Makefile` to `Makefile.pr`.
+    `prmake` will create a `Makefile` which is a copy `Makefile.pr` (apart from some comments at the top),
+    so again no functionality will change.
 
   - Then you can start experimenting with `#begincode` and `#endcode`
     as much or as little as you want.
